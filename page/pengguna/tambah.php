@@ -56,9 +56,7 @@
                                                       $sql = $koneksi->query("select * from tb_tujuan");
                                                       while ($data=$sql->fetch_assoc()) {
                                                         echo "
-
                                                           <option value='$data[id_tujuan]'>$data[nama_tujuan]</option>
-
                                                         ";
                                                       }
                                                      ?>

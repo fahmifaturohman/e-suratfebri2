@@ -5,35 +5,42 @@ if ($_SESSION['admin']) {
 	$sql = $koneksi->query("select * from tb_surat_masuk where tahun = YEAR(NOW())");
 	while($data=$sql->fetch_assoc()){
        $masuk=$sql->num_rows;
-
-
 	}
 
-  $sql = $koneksi->query("select * from tb_surat_keluar WHERE tahun = YEAR(NOW())");
+  $sql = $koneksi->query("select *, tb_surat_keluar.id id_surat 
+          from tb_surat_keluar
+          left join ref_klasifikasi on tb_surat_keluar.kode_surat=ref_klasifikasi.id
+          left join tb_asal_tujuan on
+          tb_surat_keluar.kepada=tb_asal_tujuan.id_asal_tujuan WHERE (year(tb_surat_keluar.tanggal_keluar) = YEAR(NOW()))
+          ORDER BY tb_surat_keluar.id DESC");
 	while($data=$sql->fetch_assoc()){
        $keluar=$sql->num_rows;
-
-
 	}
 
   $sql = $koneksi->query("select * from tb_disposisi");
 	while($data=$sql->fetch_assoc()){
        $disposisi=$sql->num_rows;
-
-
 	}
 
 
 }else{
 
-  $sql = $koneksi->query("select * from tb_surat_masuk where tujuan='$tujuan'");
+  $sql = $koneksi->query("select a.*, b.*, c.*,d.*, a.id id_surat, e.dari status_disposisi 
+  FROM tb_surat_masuk a
+  LEFT JOIN tb_disposisi_masuk b ON a.no_surat = b.no_surat
+  LEFT JOIN tb_asal_tujuan c ON a.asal_surat = c.id_asal_tujuan
+  LEFT JOIN ref_klasifikasi d on a.kode_surat = d.id
+  LEFT JOIN tb_disposisi_masuk e ON a.no_surat = e.no_surat and e.id_dari = '$_SESSION[level_pimpinan]'
+  WHERE b.id_tujuan = '$tujuan' and a.tahun = YEAR(NOW()) GROUP BY a.no_surat");
   while($data=$sql->fetch_assoc()){
        $masuk=$sql->num_rows;
-
-
   }
 
-  $sql = $koneksi->query("select * from tb_surat_keluar where tujuan='$tujuan'");
+  $sql = $koneksi->query("select *, tb_surat_keluar.id id_surat from tb_surat_keluar
+          left join ref_klasifikasi on tb_surat_keluar.kode_surat=ref_klasifikasi.id
+          left join tb_asal_tujuan on
+          tb_surat_keluar.kepada=tb_asal_tujuan.id_asal_tujuan WHERE (year(tb_surat_keluar.tanggal_keluar) = YEAR(NOW())) and tb_surat_keluar.kepada = '$tujuan'
+          ORDER BY tb_surat_keluar.id DESC");
   while($data=$sql->fetch_assoc()){
        $keluar=$sql->num_rows;
 
@@ -89,7 +96,7 @@ if ($_SESSION['admin']) {
           <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
-              <h3><?php echo $keluar; ?></sup></h3>
+            <h3><?=($keluar == 0) ? 0:$keluar; ?></h3>
 
               <p>Surat Keluar</p>
             </div>

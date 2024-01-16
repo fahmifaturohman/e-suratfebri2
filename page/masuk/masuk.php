@@ -1,5 +1,4 @@
 
-
 <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
@@ -34,32 +33,33 @@
                                     <tbody>
 
                                         <?php
+                                            $tahun = date('Y');
 
                                            if ($_SESSION['admin']) {
 
 
                                             $no = 1;
 
-                                            $sql = $koneksi->query("select *, tb_surat_masuk.id id_surat from tb_surat_masuk, tb_tujuan, ref_klasifikasi, tb_asal_tujuan 
-                                            where tb_surat_masuk.tujuan=tb_tujuan.id_tujuan 
-                                                  and tb_surat_masuk.Kode_surat=ref_klasifikasi.id
-                                                  and tb_surat_masuk.asal_surat=tb_asal_tujuan.id_asal_tujuan
-                                                  and tb_surat_masuk.tahun = YEAR(NOW())
-                                            order by tb_surat_masuk.id desc");
+                                            $sql = $koneksi->query("select a.*, b.*, c.*,d.*, a.id id_surat, e.dari status_disposisi 
+                                            FROM tb_surat_masuk a
+                                            LEFT JOIN tb_disposisi_masuk b ON a.no_surat = b.no_surat
+                                            LEFT JOIN tb_asal_tujuan c ON a.asal_surat = c.id_asal_tujuan
+                                            LEFT JOIN ref_klasifikasi d on a.kode_surat = d.id
+                                            LEFT JOIN tb_disposisi_masuk e ON a.no_surat = e.no_surat and e.id_dari = '$_SESSION[level_pimpinan]'
+                                            WHERE a.tahun = '$tahun' GROUP BY a.no_surat");
 
                                             
 
                                            }else{
-                                              $no = 1;
-
-                                              $sql = $koneksi->query("select *, tb_surat_masuk.id id_surat from tb_surat_masuk, tb_tujuan, ref_klasifikasi,tb_asal_tujuan 
-                                                where tb_surat_masuk.tujuan=tb_tujuan.id_tujuan 
-                                                and tb_surat_masuk.Kode_surat=ref_klasifikasi.id and tb_surat_masuk.tujuan='$tujuan' 
-                                                and tb_surat_masuk.asal_surat=tb_asal_tujuan.id_asal_tujuan 
-                                                and tb_surat_masuk.tahun = YEAR(NOW()) 
-                                               order by tb_surat_masuk.id desc ");
-
-                                            
+                                                $no = 1;
+                                                $tujuan = $_SESSION['level_pimpinan'];
+                                                $sql = $koneksi->query("select a.*, b.*, c.*,d.*, a.id id_surat, e.dari status_disposisi 
+                                                FROM tb_surat_masuk a
+                                                LEFT JOIN tb_disposisi_masuk b ON a.no_surat = b.no_surat
+                                                LEFT JOIN tb_asal_tujuan c ON a.asal_surat = c.id_asal_tujuan
+                                                LEFT JOIN ref_klasifikasi d on a.kode_surat = d.id
+                                                LEFT JOIN tb_disposisi_masuk e ON a.no_surat = e.no_surat and e.id_dari = '$_SESSION[level_pimpinan]'
+                                                WHERE b.id_tujuan = '$tujuan' and a.tahun = '$tahun' GROUP BY a.no_surat");                            
                                            } 
 
                                             while ($data= $sql->fetch_assoc()) {
@@ -79,7 +79,9 @@
                                             <td><?php echo $data['no_surat'];?><br><?php echo date('d-m-Y', strtotime($data['tgl_surat']));?></td>
                                         
                                             <td>
-                                              <?php if ($data['status']==0) {
+
+
+                                              <?php if ($data['status_disposisi'] == NULL) {
                                               echo "Belum";
                                               }else{
                                                 echo "Sudah";
@@ -97,7 +99,7 @@
 
                                               <?php } ?>  
 
-                                                <?php if ($data['status']==0) {
+                                                <?php if ($data['status']==0 || $data['status']==1) {
                                                   
                                                  ?>
 
@@ -107,7 +109,7 @@
 
                                                 <?php }else{ ?>
 
-                                                    <a disabled="" class="btn btn-success btn-xs" ><i class="fa fa-mail-forward "></i> Disposisi</a>
+                                                    <a href="?page=masuk&aksi=disposisi&id=<?php echo $data['id_surat']; ?>" class="btn btn-success btn-xs" ><i class="fa fa-mail-forward "></i> Disposisi</a>
 
                                                 <a target="blank" href="page/masuk/cetak_dispo.php?id=<?php echo $data['id_surat']; ?>" class="btn btn-warning btn-xs" ><i class="fa fa-print "></i> Cetak Disposisi</a>
 

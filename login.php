@@ -128,6 +128,8 @@ if (isset($_POST['login'])) {
     $_SESSION['pass'] = $data['password'];
     $_SESSION['level'] = $data['level'];
     $_SESSION['id'] = $data['id'];
+    $_SESSION['level_pimpinan'] = $data['level_pimpinan'];
+    $_SESSION['nama_user'] = $data['nama_user'];
     
 
 

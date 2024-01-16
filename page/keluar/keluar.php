@@ -1,3 +1,6 @@
+<?php $tujuan = $_SESSION['level_pimpinan'];
+  
+?>
 <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
@@ -32,7 +35,8 @@
                   <?php
                    if ($_SESSION['admin']) {
                       $no = 1;
-                      $sql = $koneksi->query("select *, tb_surat_keluar.id id_surat from tb_surat_keluar
+                      $sql = $koneksi->query("select *, tb_surat_keluar.id id_surat 
+                        from tb_surat_keluar
                         left join ref_klasifikasi on tb_surat_keluar.kode_surat=ref_klasifikasi.id
                         left join tb_asal_tujuan on
                         tb_surat_keluar.kepada=tb_asal_tujuan.id_asal_tujuan WHERE (year(tb_surat_keluar.tanggal_keluar) = YEAR(NOW()))
@@ -40,12 +44,11 @@
 
                     }else{
                       $no = 1;
-                      $sql = $koneksi->query("select *,tb_surat_keluar.id id_surat from tb_surat_keluar
-                        left join ref_klasifikasi on tb_surat_keluar.kode_surat=ref_klasifikasi.id
-                         left join tb_asal_tujuan on
-                        tb_surat_keluar.kepada=tb_asal_tujuan.id_asal_tujuan
-                        where tb_surat_keluar.tujuan='$tujuan' AND (year(tb_surat_keluar.tanggal_keluar) = YEAR(NOW())
-                        ORDER BY tb_surat_keluar.id DESC");
+                      $sql = $koneksi->query("select *, tb_surat_keluar.id id_surat from tb_surat_keluar
+                      left join ref_klasifikasi on tb_surat_keluar.kode_surat=ref_klasifikasi.id
+                      left join tb_asal_tujuan on
+                      tb_surat_keluar.kepada=tb_asal_tujuan.id_asal_tujuan WHERE (year(tb_surat_keluar.tanggal_keluar) = YEAR(NOW())) and tb_surat_keluar.kepada = '$tujuan'
+                      ORDER BY tb_surat_keluar.id DESC");
                     }  
                     while ($data= $sql->fetch_assoc()) {
 

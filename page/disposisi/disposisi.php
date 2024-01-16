@@ -1,4 +1,6 @@
-
+<?php 
+    $arr_sifat = ['b'=> 'Biasa', 'p'=> 'Penting','s'=>'Sangat Penting','r'=>'Rahasia'];
+?>
 <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
@@ -20,6 +22,7 @@
                       <th>Asal</th>
                       <th>Sifat</th>
                       <th>Perihal</th>
+                      <th>Disposisi Dari</th>
                       <th>Diteruskan</th>   
                       <th>Catatan</th>      
                       <th>Aksi</th>
@@ -31,14 +34,20 @@
                 <tbody>
 
                   <?php
-                       $no = 1;
+                        $no = 1; $tahun = date('Y'); $tujuan = $_SESSION['level_pimpinan'];
+                        if($_SESSION['level'] == 'admin') {
+                        $query = "SELECT a.no_surat, a.id_tujuan, a.ttd, a.jabatan, a.catatan, a.id_dari, a.dari, a.id id_a, b.*, c.asal_tujuan asal FROM `tb_disposisi_masuk` a left JOIN tb_surat_masuk b ON a.no_surat = b.no_surat left JOIN tb_asal_tujuan c ON b.asal_surat = c.id_asal_tujuan WHERE b.tahun = '$tahun' ORDER BY b.id DESC";
+                        } else {
+                            $query = "SELECT a.no_surat, a.id_tujuan, a.ttd, a.jabatan, a.catatan, a.id_dari, a.dari, a.id id_a b.*, c.asal_tujuan asal 
+                            FROM `tb_disposisi_masuk` a 
+                            left JOIN tb_surat_masuk b ON a.no_surat = b.no_surat 
+                            left JOIN tb_asal_tujuan c ON b.asal_surat = c.id_asal_tujuan 
+                            WHERE b.tahun = '$tahun' and (a.id_dari = '$tujuan' OR a.id_tujuan = '$tujuan') 
+                            ORDER BY b.id DESC";
+                        }
+                        $sql = $koneksi->query($query);
 
-                              $sql = $koneksi->query("select * from tb_disposisi, m_dispos where tb_disposisi.teruskan=m_dispos.id_dispos ");
-
-                              while ($data= $sql->fetch_assoc()) {
-
-
-
+                        while ($data= $sql->fetch_assoc()) {
                    ?>
 
                   <tr>
@@ -46,26 +55,15 @@
                           <td><?php echo $data['no_surat'];?></td>
                           <td><?php echo date('d F Y', strtotime( $data['tgl_surat']));?></td>
                           <td><?php echo date('d F Y', strtotime( $data['tanggal_terima']));?></td>
-                          <td><?php echo $data['asal_surat'];?></td>
-                          <td><?php 
-
-                                  if($data['sifat_surat']=="p"){
-                                   echo "Rahasia";
-                                  }else if($data['sifat_surat']=="sp"){
-                                   echo "Penting";
-                                  }else if($data['sifat_surat']=="b"){
-                                   echo "Biasa";
-                                  }else{
-                                   echo "Segera";
-                                  }﻿
-
-                              ?></td>
+                          <td><?php echo $data['asal'];?></td>
+                          <td><?=$arr_sifat[$data['sifat_surat']];?></td>
                           <td><?php echo $data['perihal'];?></td>
-                          <td><?php echo $data['nama_bagian'];?></td>
-                          <td><?php echo $data['ket'];?></td>
+                          <td><?=$data['dari']?></td>
+                          <td><?php echo $data['jabatan'];?></td>
+                          <td><?php echo $data['catatan'];?></td>
                          
                            <td>
-                              <a href="page/disposisi/cetak.php?id=<?php echo $data['id']; ?>" target="pimpinan" class="btn btn-info btn-xs" ><i class="fa fa-print "></i> Cetak Disposisi</a>
+                              <a href="page/disposisi/cetak.php?id=<?php echo $data['id']; ?>&dari=<?=$data['id_a']?>" target="pimpinan" class="btn btn-info btn-xs" ><i class="fa fa-print "></i> Cetak Disposisi</a>
                               
                           </td>
                       </tr>
